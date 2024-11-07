@@ -6,7 +6,11 @@ import sys
 import os
 
 # Dynamically add the 'models' directory to the Python path
+# Adding the 'models' folder path relative to current file location (main.py)
 sys.path.append(os.path.join(os.path.dirname(__file__), 'models'))
+
+# Debugging: Check the sys.path to see if models folder is included
+st.write(f"Current sys.path: {sys.path}")
 
 # Try to import the BudgetModel class after appending the path
 try:
