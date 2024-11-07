@@ -1,4 +1,6 @@
 # app/main.py
+import sys
+import os
 
 import streamlit as st
 from models.budget_model import BudgetModel
