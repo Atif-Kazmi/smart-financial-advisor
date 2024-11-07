@@ -1,6 +1,12 @@
 import streamlit as st
 import pandas as pd
-from models.budget_model import BudgetModel
+import sys
+
+# Add the models folder to the Python path
+sys.path.append('./models')  # This ensures the 'models' directory can be accessed
+
+# Import BudgetModel from the 'models' folder
+from budget_model import BudgetModel
 
 # File path to the CSV file in the main directory
 csv_file_path = 'expenses_data.csv'
