@@ -1,11 +1,9 @@
-from models.budget_model import BudgetModel
 import streamlit as st
 import pandas as pd
 import numpy as np
-import os
-import sys
 import matplotlib.pyplot as plt
 import seaborn as sns
+from models.budget_model import BudgetModel
 from sklearn.linear_model import LinearRegression
 
 # Title and Introduction
@@ -74,42 +72,36 @@ if uploaded_file is not None:
     
     # Process the data (ensure the columns are correct)
     if 'Category' in df.columns and 'Amount' in df.columns:
-        # Convert Amount column to numeric
-        df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce')  # Convert to numeric
-        df = df.dropna()  # Drop rows with NaN values
+        # Predicting next month's expenses using a simple linear regression model
+        # Example: Assuming a simple linear trend to predict next month's value
         
-        # Group by 'Category' and get the sum for each category
+        # Group by 'Category' and get the average amount for each category
         category_expenses = df.groupby('Category')['Amount'].sum().reset_index()
 
-        # Check if there are enough records to predict
-        if len(category_expenses) < 2:
-            st.error("Insufficient data to make a prediction.")
-        else:
-            # Prepare the data for Linear Regression
-            X = np.array(range(len(category_expenses))).reshape(-1, 1)  # Month number (0, 1, 2, 3,...)
-            y = category_expenses['Amount'].values  # Expenses for each category
+        # Predict using Linear Regression (assuming simple monthly trend)
+        X = np.array(range(len(category_expenses)))  # Month number (0, 1, 2, 3,...)
+        y = category_expenses['Amount'].values  # Expenses for each category
 
-            # Initialize and fit the model
-            model = LinearRegression()
-            model.fit(X, y)
-            
-            # Predict next month's expenses (i.e., the next point in the trend)
-            next_month_prediction = model.predict(np.array([[len(category_expenses)]]))
-            
-            # Display predicted expenses for next month
-            predicted_expenses = pd.DataFrame({
-                'Category': category_expenses['Category'],
-                'Predicted Expense for Next Month': next_month_prediction
-            })
-            
-            st.subheader("Predicted Expenses for Next Month")
-            st.write(predicted_expenses)
+        model = LinearRegression()
+        model.fit(X.reshape(-1, 1), y)
+        
+        # Predict next month's expenses (i.e., the next point in the trend)
+        next_month_prediction = model.predict(np.array([[len(category_expenses)]]))
+        
+        # Display predicted expenses for next month
+        predicted_expenses = pd.DataFrame({
+            'Category': category_expenses['Category'],
+            'Predicted Expense for Next Month': next_month_prediction
+        })
+        
+        st.subheader("Predicted Expenses for Next Month")
+        st.write(predicted_expenses)
 
-            # Visualize predicted expenses
-            fig, ax = plt.subplots(figsize=(10, 6))
-            ax.bar(predicted_expenses['Category'], predicted_expenses['Predicted Expense for Next Month'], color='orange')
-            ax.set_xlabel('Expense Category')
-            ax.set_ylabel('Predicted Expense ($)')
-            st.pyplot(fig)
+        # Visualize predicted expenses
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.bar(predicted_expenses['Category'], predicted_expenses['Predicted Expense for Next Month'], color='orange')
+        ax.set_xlabel('Expense Category')
+        ax.set_ylabel('Predicted Expense ($)')
+        st.pyplot(fig)
     else:
         st.error("The CSV file must contain 'Category' and 'Amount' columns.")
