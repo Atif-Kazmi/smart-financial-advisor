@@ -1,45 +1,40 @@
-# app/main.py
 import sys
 import os
-
 import streamlit as st
-from models.budget_model import BudgetModel
-from models.savings_model import SavingsModel
-from scripts.expense_tracker import ExpenseTracker
-from scripts.goal_tracker import GoalTracker
-from scripts.data_visualization import visualize_data
-from scripts.savings_progress import show_savings_progress
 
+# Step 1: Add the parent directory (the root of the project) to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Step 2: Try importing BudgetModel from the models directory
+try:
+    from models.budget_model import BudgetModel
+    st.write("BudgetModel imported successfully.")
+except ModuleNotFoundError as e:
+    st.write(f"Error: {e}")
+
+# Step 3: Streamlit UI
+
+# Title of the app
 st.title("Smart Financial Advisor")
 
-# Sample user input
-income = st.number_input("Enter your monthly income:", min_value=0)
-savings_goal = st.number_input("Enter your monthly savings goal:", min_value=0)
-expenses = {
-    "rent": st.number_input("Rent:", min_value=0),
-    "food": st.number_input("Food:", min_value=0),
-    "utilities": st.number_input("Utilities:", min_value=0),
-    "transportation": st.number_input("Transportation:", min_value=0),
-    "entertainment": st.number_input("Entertainment:", min_value=0),
-}
+# Instructions or welcome message
+st.write("Welcome to the Smart Financial Advisor app! This tool helps you manage your finances, track your budget, and save money effectively.")
 
-# Budget Model
-budget = BudgetModel(income, expenses, savings_goal)
-allocation = budget.calculate_budget_allocation()
-st.write("Budget Allocation:", allocation)
+# Check if the model is imported successfully
+if 'BudgetModel' in locals():
+    # If the model is successfully imported, instantiate and use it
+    budget_model = BudgetModel()
 
-# Expense Tracking
-tracker = ExpenseTracker(expenses)
-tracker.update_expenses()
-st.write("Updated Expenses:", tracker.expenses)
+    # Example interaction with the model
+    st.write("The BudgetModel has been successfully imported and is now available for use.")
 
-# Savings Goal
-savings_model = SavingsModel(income, savings_goal)
-goal = savings_model.calculate_savings_goal()
-st.write("Savings Goal:", goal)
+    # Sample method or interaction with the BudgetModel (Example)
+    if st.button('Run Budget Analysis'):
+        # Here you would call methods from the BudgetModel class to interact with it
+        # For example, assuming BudgetModel has a method like 'get_budget_analysis'
+        budget_data = budget_model.get_budget_analysis()  # Replace with actual method
+        st.write("Budget Analysis Results:", budget_data)
 
-# Data Visualization
-visualize_data(tracker.expenses)
-
-# Show Savings Progress
-show_savings_progress(goal)
+else:
+    # In case the import fails, show an error message
+    st.write("Error: Could not import the BudgetModel. Please check the directory structure or the code.")
