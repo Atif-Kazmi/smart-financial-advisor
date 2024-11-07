@@ -5,11 +5,14 @@ import seaborn as sns
 import sys
 import os
 
-# Adding the models directory to the Python path
+# Dynamically add the 'models' directory to the Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'models'))
 
-# Import the BudgetModel class after appending the path
-from budget_model import BudgetModel
+# Try to import the BudgetModel class after appending the path
+try:
+    from budget_model import BudgetModel
+except ImportError as e:
+    st.error(f"Error importing BudgetModel: {e}")
 
 # Function to load expenses data
 def load_expenses_data(file):
