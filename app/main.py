@@ -6,7 +6,6 @@ import sys
 import os
 
 # Dynamically add the 'models' directory to the Python path
-# Adding the 'models' folder path relative to current file location (main.py)
 sys.path.append(os.path.join(os.path.dirname(__file__), 'models'))
 
 # Debugging: Check the sys.path to see if models folder is included
@@ -14,9 +13,12 @@ st.write(f"Current sys.path: {sys.path}")
 
 # Try to import the BudgetModel class after appending the path
 try:
-    from budget_model import BudgetModel
+    from budget_model import BudgetModel  # Absolute import from 'models' directory
+    from savings_model import SavingsModel  # Import SavingsModel if needed
+    from expense_forecasting import ExpenseForecasting  # Import ExpenseForecasting model
+    from savings_strategies import SavingsStrategies  # Import SavingsStrategies model
 except ImportError as e:
-    st.error(f"Error importing BudgetModel: {e}")
+    st.error(f"Error importing models: {e}")
 
 # Function to load expenses data
 def load_expenses_data(file):
@@ -79,6 +81,12 @@ def main():
                 predicted_expenses = {category: amount * 1.1 for category, amount in expenses.items()}  # Simple prediction (10% increase)
                 st.write(predicted_expenses)
                 plot_expense_breakdown(predicted_expenses)
+
+                # Optional: Provide savings goal recommendations using the savings_model.py
+                savings_model = SavingsModel(income, expenses)
+                st.write("### Suggested Savings Strategies")
+                st.write(savings_model.calculate_savings_goal())
+                st.write(savings_model.savings_advice())
 
     else:
         st.write("Please upload your expense data to proceed.")
