@@ -6,5 +6,5 @@ Configuration file.
 ```python
 # config.py
 
-CLIENT_ID = "your-client-id"
-CLIENT_SECRET = "your-client-secret"
+CLIENT_ID = "Ov23liHlNXJ1khGL8SDn"
+CLIENT_SECRET = "da5a215e0c4c45e1537cf24bb09e0ea03954c3af"
