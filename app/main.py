@@ -5,7 +5,7 @@ import seaborn as sns
 import sys
 import os
 
-# Dynamically add the 'models' directory to the Python path
+# Add models directory to the sys.path dynamically to avoid import issues
 sys.path.append(os.path.join(os.path.dirname(__file__), 'models'))
 
 # Debugging: Check the sys.path to see if models folder is included
@@ -19,6 +19,8 @@ try:
     from savings_strategies import SavingsStrategies  # Import SavingsStrategies model
 except ImportError as e:
     st.error(f"Error importing models: {e}")
+    # Adding this line to stop further execution if models fail to import
+    st.stop()
 
 # Function to load expenses data
 def load_expenses_data(file):
