@@ -1,107 +1,38 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from models.budget_model import BudgetModel
-from sklearn.linear_model import LinearRegression
 
-# Title and Introduction
-st.title("Smart Financial Advisor")
-st.header("Budgeting & Savings Tracker")
+# File path to the CSV file in the main directory
+csv_file_path = 'expenses_data.csv'
 
-# Input Section
-st.sidebar.header("User Inputs")
-income = st.sidebar.number_input("Enter your monthly income:", min_value=1000, max_value=100000, value=3000, step=500)
+# Function to load the expense data from CSV file
+def load_expenses_data(file_path):
+    try:
+        data = pd.read_csv(file_path)
+        return data
+    except Exception as e:
+        st.error(f"Error loading the file: {e}")
+        return None
 
-# Expense Categories: Allow users to add categories dynamically
-expense_categories = ['Rent', 'Groceries', 'Utilities', 'Transportation', 'Entertainment', 'Other']
-expenses = {}
-for category in expense_categories:
-    amount = st.sidebar.number_input(f"Enter your {category} expenses:", min_value=0, max_value=10000, value=300, step=50)
-    expenses[category] = amount
+# Load the expense data from the CSV file
+expense_data = load_expenses_data(csv_file_path)
 
-# Create BudgetModel instance
-budget = BudgetModel(income, expenses)
+# If data is loaded, proceed with calculations
+if expense_data is not None:
+    # Assuming the CSV has columns 'Category' and 'Amount'
+    expenses = expense_data.set_index('Category')['Amount'].to_dict()
 
-# Section for Budget Insights
-st.subheader("Budget Insights")
-remaining_balance = budget.calculate_budget_balance()
-st.write(f"Remaining Balance: ${remaining_balance}")
-insights = budget.budget_insights()
-st.write(insights)
+    # Allow user to input their monthly income
+    income = st.number_input("Enter your monthly income:", min_value=1000, step=1000)
 
-# Expense Breakdown Section
-st.subheader("Expense Breakdown")
-expense_details = budget.display_expense_breakdown()
-st.text(expense_details)
-
-# Expense Visualization
-st.subheader("Expense Allocation")
-fig, ax = plt.subplots(figsize=(10, 6))
-categories = list(expenses.keys())
-amounts = list(expenses.values())
-ax.pie(amounts, labels=categories, autopct='%1.1f%%', startangle=90)
-ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-st.pyplot(fig)
-
-# Savings Goal Tracker
-st.subheader("Savings Goal Tracker")
-goal = st.number_input("Enter your savings goal:", min_value=100, max_value=50000, value=5000, step=500)
-savings_progress = (income - sum(expenses.values())) / income * 100  # Simple savings progress
-st.write(f"Current Savings Progress: {savings_progress:.2f}%")
-
-# Visualize savings progress
-fig, ax = plt.subplots(figsize=(6, 4))
-ax.barh(['Savings Progress'], [savings_progress], color='green')
-ax.set_xlim(0, 100)
-ax.set_xlabel("Savings Progress (%)")
-st.pyplot(fig)
-
-# File Upload for Monthly Expense Sheet
-st.subheader("Upload Your Monthly Expense Sheet (CSV)")
-uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
-
-if uploaded_file is not None:
-    # Read the uploaded CSV file into a DataFrame
-    df = pd.read_csv(uploaded_file)
-    
-    # Show the uploaded data
-    st.write("Uploaded Expense Data:")
-    st.dataframe(df.head())
-    
-    # Process the data (ensure the columns are correct)
-    if 'Category' in df.columns and 'Amount' in df.columns:
-        # Predicting next month's expenses using a simple linear regression model
-        # Example: Assuming a simple linear trend to predict next month's value
+    if income > 0:
+        # Create an instance of BudgetModel
+        budget = BudgetModel(income, expenses)
         
-        # Group by 'Category' and get the average amount for each category
-        category_expenses = df.groupby('Category')['Amount'].sum().reset_index()
-
-        # Predict using Linear Regression (assuming simple monthly trend)
-        X = np.array(range(len(category_expenses)))  # Month number (0, 1, 2, 3,...)
-        y = category_expenses['Amount'].values  # Expenses for each category
-
-        model = LinearRegression()
-        model.fit(X.reshape(-1, 1), y)
-        
-        # Predict next month's expenses (i.e., the next point in the trend)
-        next_month_prediction = model.predict(np.array([[len(category_expenses)]]))
-        
-        # Display predicted expenses for next month
-        predicted_expenses = pd.DataFrame({
-            'Category': category_expenses['Category'],
-            'Predicted Expense for Next Month': next_month_prediction
-        })
-        
-        st.subheader("Predicted Expenses for Next Month")
-        st.write(predicted_expenses)
-
-        # Visualize predicted expenses
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(predicted_expenses['Category'], predicted_expenses['Predicted Expense for Next Month'], color='orange')
-        ax.set_xlabel('Expense Category')
-        ax.set_ylabel('Predicted Expense ($)')
-        st.pyplot(fig)
-    else:
-        st.error("The CSV file must contain 'Category' and 'Amount' columns.")
+        # Display the results
+        st.write("### Budget Overview")
+        st.write("**Remaining Balance:**", budget.calculate_budget_balance())
+        st.write("**Budget Insights:**", budget.budget_insights())
+        st.write("**Expense Breakdown:**", budget.display_expense_breakdown())
+else:
+    st.error("No expense data available.")
