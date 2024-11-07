@@ -1,21 +1,19 @@
-# models/budget_model.py
+from models.budget_model import BudgetModel
 
-class BudgetModel:
-    def __init__(self, income, expenses, savings_goal):
-        self.income = income
-        self.expenses = expenses
-        self.savings_goal = savings_goal
+# Sample data
+income = 3000
+expenses = {
+    'Rent': 1200,
+    'Groceries': 400,
+    'Utilities': 150,
+    'Transportation': 100,
+    'Entertainment': 200
+}
 
-    def calculate_total_expenses(self):
-        return sum(self.expenses.values())
+# Create a BudgetModel instance
+budget = BudgetModel(income, expenses)
 
-    def calculate_budget_allocation(self):
-        total_expenses = self.calculate_total_expenses()
-        discretionary_income = self.income - total_expenses - self.savings_goal
-        allocation = {
-            "income": self.income,
-            "total_expenses": total_expenses,
-            "savings_goal": self.savings_goal,
-            "discretionary_income": max(discretionary_income, 0)
-        }
-        return allocation
+# Get insights and breakdown
+print(budget.calculate_budget_balance())  # Remaining balance
+print(budget.budget_insights())           # Budget insights and advice
+print(budget.display_expense_breakdown())  # Expense breakdown by category
