@@ -2,11 +2,19 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from models.budget_model import BudgetModel
 import sys
+import os
+
+# Adding the models directory to the Python path
+sys.path.append(os.path.join(os.path.dirname(__file__), 'models'))
+
+# Import the BudgetModel class after appending the path
+from budget_model import BudgetModel
+
 # Function to load expenses data
 def load_expenses_data(file):
     try:
+        # Attempt to load the CSV file
         data = pd.read_csv(file)
         return data
     except Exception as e:
@@ -15,7 +23,6 @@ def load_expenses_data(file):
 
 # Function to generate charts for expense data
 def plot_expense_breakdown(expenses):
-    # Plotting a bar chart
     expense_df = pd.DataFrame(expenses.items(), columns=['Category', 'Amount'])
     plt.figure(figsize=(10, 6))
     sns.barplot(x='Category', y='Amount', data=expense_df, palette='Blues_d')
@@ -23,6 +30,7 @@ def plot_expense_breakdown(expenses):
     plt.title('Expense Breakdown')
     st.pyplot(plt)
 
+# Main function for Streamlit app
 def main():
     # Display the app's header
     st.title("Smart Financial Advisor")
@@ -33,6 +41,7 @@ def main():
 
     # Allow users to upload their expense data file
     uploaded_file = st.sidebar.file_uploader("Upload your monthly expense CSV", type="csv")
+    
     if uploaded_file:
         # Load the uploaded expense data
         expense_data = load_expenses_data(uploaded_file)
@@ -60,8 +69,7 @@ def main():
 
                 # Predictions for future expenses
                 st.write("### Predicted Expenses for Next Month")
-                # Implement a simple prediction based on last month's expense data (e.g., increase by 10%)
-                predicted_expenses = {category: amount * 1.1 for category, amount in expenses.items()}
+                predicted_expenses = {category: amount * 1.1 for category, amount in expenses.items()}  # Simple prediction (10% increase)
                 st.write(predicted_expenses)
                 plot_expense_breakdown(predicted_expenses)
 
