@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from models.budget_model import BudgetModel
-
+import sys
 # Function to load expenses data
 def load_expenses_data(file):
     try:
